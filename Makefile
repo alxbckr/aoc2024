@@ -4,6 +4,7 @@ ifdef day
 	@touch ./day$(day)/day$(day).cpp
 	@touch ./day$(day)/input-test.txt
 	@touch ./day$(day)/input.txt
+	@cp ./dayxx/day_template.cpp	./day$(day)/day$(day).cpp
 else
 	@echo 'Missing argument day=<n>'
 endif
