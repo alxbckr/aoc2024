@@ -1,6 +1,9 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -10,12 +13,83 @@ enum class Parts{
     Part2
 };
 
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+void split_string(const string& input, const char delimiter, vector<string>& buffer) {
+    istringstream stream(input);
+    string token;
+    while(getline(stream, token, delimiter)) {
+        buffer.push_back(token);
+    }
+}
+
+void read_file(ifstream& input, vector<string>& lines) {
+    string line;
+    while(getline(input, line)) {
+        lines.push_back(line);
+    }
+}
+
+bool probe_safety(const vector<string>& levels){
+    auto level_prev = 0;
+    auto sign = 0;
+    auto safe = true;
+    for (int i = 0; i < levels.size(); i++) {
+        auto level_curr = stoi(levels[i]);
+        if (i == 1) {
+            sign = sgn(level_curr - level_prev);
+        }
+        if (i > 0) {
+            auto delta = abs(level_curr - level_prev);
+            if ( delta < 1 || delta > 3 || sign != sgn( level_curr - level_prev ) ){
+                return false;
+            }
+        }
+        level_prev = level_curr;
+    }
+    return true;
+}
+
 void solve_part1(ifstream& input) {
-    cout << "Solution " << 0 << endl;
+    vector<string> reports;
+    read_file(input, reports);
+
+    auto safe_levels = 0;
+
+    for (auto report : reports) {        
+        vector<string> levels;
+        split_string(report, ' ', levels);        
+        if (probe_safety(levels)) safe_levels++;
+    }
+
+    cout << "Solution 1: " << safe_levels << endl;
 }
 
 void solve_part2(ifstream& input){
-    cout << "Solution " << 0 << endl;
+    vector<string> reports;
+    read_file(input, reports);
+
+    auto safe_levels = 0;
+
+    for (auto report : reports) {
+        vector<string> levels;
+        split_string(report, ' ', levels);             
+        if (probe_safety(levels)) safe_levels++;
+        else {
+            for (auto attempt = 0; attempt < levels.size(); attempt++){
+                auto levels_copy = levels;
+                levels_copy.erase(next(levels_copy.begin(), attempt));
+                if (probe_safety(levels_copy)) { 
+                    safe_levels++;
+                    break;
+                }
+            }
+        }
+    }
+
+    cout << "Solution 2: " << safe_levels << endl;
 }
 
 int main(int argc, char *argv[]) {

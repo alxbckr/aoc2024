@@ -11,11 +11,11 @@ enum class Parts{
 };
 
 void solve_part1(ifstream& input) {
-    cout << "Solution " << 0 << endl;
+    cout << "Solution 1: " << 0 << endl;
 }
 
 void solve_part2(ifstream& input){
-    cout << "Solution " << 0 << endl;
+    cout << "Solution 2: " << 0 << endl;
 }
 
 int main(int argc, char *argv[]) {

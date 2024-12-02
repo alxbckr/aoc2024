@@ -32,7 +32,7 @@ void solve_part1(ifstream& input) {
         total += abs(locations1[c] - locations2[c]);
     }
 
-    cout << "Solution " << total << endl;
+    cout << "Solution 1: " << total << endl;
 }
 
 void solve_part2(ifstream& input){
@@ -58,7 +58,7 @@ void solve_part2(ifstream& input){
         total += locations1[c] * (sim_score.find(locations1[c]) == sim_score.end() ? 0 : sim_score[locations1[c]]);
     }
 
-    cout << "Solution " << total << endl;
+    cout << "Solution 2: " << total << endl;
 }
 
 int main(int argc, char *argv[]) {
