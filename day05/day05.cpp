@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -14,22 +15,16 @@ enum class Parts{
     Part2
 };
 
-void solve_part1(ifstream& input) {
-    map<int, vector<int>> rules_after;
-    map<int, vector<int>> rules_before;
-    vector<vector<int>> updates;
-
+void parse_input(ifstream& input, map<int, vector<int>>& rules_before, vector<vector<int>>& updates) {
     string line { };    
     auto update_mode { false };
     while (getline(input, line)) {
-        if (line == "") update_mode = true;
+        if (line == "") { update_mode = true; continue; }
         if (!update_mode) {
             //rules
             auto p1 = 0, p2 = 0;
             sscanf(line.c_str(), "%d|%d", &p1, &p2);
-            rules_after[p1].push_back(p2);
             rules_before[p2].push_back(p1);
-            cout << p1 << " " << p2 << endl;
         } else {
             vector<int> update;
             vector<int> update_reverse;
@@ -42,24 +37,70 @@ void solve_part1(ifstream& input) {
             updates.push_back(update);
         }
     }
+}
+
+void solve_part1(ifstream& input) {
+    map<int, vector<int>> rules_before;
+    vector<vector<int>> updates;
+
+    parse_input(input, rules_before, updates);
+
+    auto res = 0;
 
     for (const auto update : updates) {
+        auto violated {false};
         for (auto i = 0; i < update.size(); i++ ) {
             // rules "after"
             for (auto j = i+1; j < update.size(); j++) {
                 const auto& v = rules_before[update[j]];
-                if (find(v.begin(),v.end(), update[i]) != v.end()) {
-                    cout << update[i] << " violates after " << update[j];
+                if (find(v.begin(),v.end(), update[i]) == v.end()) {
+                    violated = true;
+                    break;
                 }
             }
+            if (violated) break;
         }
+        if (!violated) res += update[floor(update.size()/2)];
     }
 
-    cout << "Solution 1: " << 0 << endl;
+    cout << "Solution 1: " << res << endl;
 }
 
 void solve_part2(ifstream& input){
-    cout << "Solution 2: " << 0 << endl;
+    map<int, vector<int>> rules_before;
+    vector<vector<int>> updates;
+    vector<vector<int>> violated_updates;
+
+    parse_input(input, rules_before, updates);
+
+    auto res = 0;
+
+    for (auto& update : updates) {
+        auto solved {false};
+        auto update_violated {false};
+        while (!solved) {
+            auto try_violated { false };
+            for (auto i = 0; i < update.size(); i++ ) {
+                // violation of rules "before"
+                for (auto j = i+1; j < update.size(); j++) {
+                    const auto& v = rules_before[update[j]];
+                    if (find(v.begin(),v.end(), update[i]) == v.end()) {
+                        update_violated = true;
+                        try_violated = true;
+                        swap(update[i], update[j]);
+                    }
+                }
+            }
+            if (!update_violated || !try_violated) {
+                solved = true;
+                break;
+            }
+        }
+        if (update_violated) res += update[floor(update.size()/2)];
+
+    }    
+
+    cout << "Solution 2: " << res << endl;
 }
 
 int main(int argc, char *argv[]) {
