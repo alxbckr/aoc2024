@@ -161,6 +161,7 @@ void solve_part2(ifstream& input){
 
     auto start {guard_pos};
     auto exit = false;
+    auto start_dir = DirUp;
     auto dir = DirUp;
     auto cycles { 0 };
     
@@ -177,11 +178,10 @@ void solve_part2(ifstream& input){
         default:
             Coord obstacle = get_next_coord(guard_pos,dir);
             if (start != obstacle && visited.count(obstacle) == 0) {
-                auto map_copy = zmap;
                 // put an "obstacle" before and see if that will be a loop
+                auto map_copy = zmap;
                 map_copy[obstacle.y][obstacle.x] = '#';
-                auto new_dir { DirUp };
-                if (detect_loop(map_copy, start, obstacle, new_dir)) {
+                if (detect_loop(map_copy, start, obstacle, start_dir)) {
                     visited[obstacle] = true;
                     cycles++;
                 //cout << "loop at " << obstacle.y + 1 << " " << obstacle.x + 1 << endl;
