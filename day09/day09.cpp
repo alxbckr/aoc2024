@@ -30,12 +30,44 @@ void parse_input(ifstream& input, vector<int>& fs){
     }
 }
 
-void print_fs(vector<int>& fs) {
+void print_fs(const vector<int>& fs) {
     for (auto c : fs) {
         if (c == -1) cout << '.';
         else cout << c;
     }
     cout << endl;
+}
+
+size_t find_file_begin(const vector<int>& fs, const size_t file_end) {
+    auto file_start = file_end;    
+    while(file_start >=0 && fs.at(file_start) == fs.at(file_end)) {
+        if (file_start == 0) return file_start;
+        file_start--;
+    }
+    return file_start+1;
+}
+
+size_t find_free_slot(const vector<int>& fs, const size_t len){
+    size_t c {0};
+    size_t cs{0};
+    int fl {0};
+    while(c < fs.size()){
+        if (fs[c] != -1) fl = 0; 
+        else {
+            if (fl == 0) cs = c;
+            fl++;
+            if (fl == len) return cs;
+        }
+        c++;
+    }
+    return -1;
+}
+
+void move_file(vector<int>& fs, const size_t file_start, const size_t file_len, const size_t target){
+    for (auto i = 0; i < file_len; i++){
+        fs[target+i] = fs[file_start+i];
+        fs[file_start+i] = -1;
+    }
 }
 
 void solve_part1(ifstream& input) {
@@ -71,18 +103,30 @@ void solve_part2(ifstream& input){
 
     parse_input(input,fs);
 
-    size_t c1 {0};
     size_t c2 {fs.size()-1};
+    int prev_id {99999};
+    while (c2 > 0) {
+        //print_fs(fs);
+        // find next file
+        while(fs.at(c2) == -1 && c2 > 0) c2--;   
+        int file_id = fs.at(c2);
+        int file_begin = find_file_begin(fs, c2);
 
-    while (c2 > c1) {
-        if (fs.at(c1) != -1) { c1++; continue; }
+        if (file_begin == 0) break;
 
-        while(fs.at(c2) == -1 && c2 > c1) c2--;
+        if (file_id > prev_id){
+            c2 = file_begin - 1;
+            continue;            
+        }
 
-        fs[c1] = fs[c2];
-        fs[c2] = -1;
-        c2--;
-        c1++;
+        auto c1 = find_free_slot(fs,c2-file_begin+1);
+        if (c1 < 0 || c1 > c2) {
+            c2 = file_begin - 1;
+            continue;
+        }
+
+        move_file(fs, file_begin, c2-file_begin+1, c1);
+        prev_id = file_id;
     }   
 
     long long res {0};
