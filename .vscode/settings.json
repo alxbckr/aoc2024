@@ -24,6 +24,7 @@
         "ranges": "cpp",
         "span": "cpp",
         "utility": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "cmath": "cpp"
     }
 }
