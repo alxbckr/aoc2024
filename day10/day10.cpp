@@ -27,6 +27,18 @@ void step(pair<int,int> start, int dx, int dy, const vector<vector<int>>& topo_m
     s.push(p);
 }
 
+void step_2(pair<int,int> start, int dx, int dy, const vector<vector<int>>& topo_map, 
+    stack<pair<int,int>>& s) {
+    
+    auto x = start.first + dx;
+    auto y = start.second + dy;
+    pair<int,int> p {x,y};
+    if (!(x >= 0 && x < topo_map[0].size() && y >= 0 && y < topo_map.size()) 
+        || topo_map[y][x] != topo_map[start.second][start.first] + 1) return;
+
+    s.push(p);
+}
+
 int calc_trails(pair<int,int> start,const vector<vector<int>>& topo_map) {
     auto count {0};
     map<pair<int,int>, bool> visited;
@@ -52,6 +64,31 @@ int calc_trails(pair<int,int> start,const vector<vector<int>>& topo_map) {
     return count;
 }
 
+int calc_trails_2(pair<int,int> start,const vector<vector<int>>& topo_map) {
+    auto count {0};
+    stack<pair<int,int>> s;
+
+    auto v = topo_map[start.second][start.first];
+    s.push(start);
+    while (!s.empty()){
+        auto p = s.top();
+        s.pop();  
+        
+        if (topo_map[p.second][p.first] == 9)  {
+            count++;
+            continue;
+        }
+
+        step_2(p, -1, 0, topo_map, s);
+        step_2(p, +1, 0, topo_map, s);
+        step_2(p, 0, -1, topo_map, s);
+        step_2(p, 0, +1, topo_map, s);
+    }
+
+    return count;
+}
+
+
 void solve_part1(ifstream& input) {
     vector<vector<int>> topo_map {};
 
@@ -71,11 +108,29 @@ void solve_part1(ifstream& input) {
         }
     }
 
-    cout << "Solution 2: " << res << endl;
+    cout << "Solution 1: " << res << endl;
 }
 
 void solve_part2(ifstream& input){
-    cout << "Solution 2: " << 0 << endl;
+    vector<vector<int>> topo_map {};
+
+    string line;
+    while(getline(input, line)){
+        vector<int> v;
+        for (const auto c : line) v.push_back(atoi(&c));
+        topo_map.push_back(v);
+    }
+
+    auto res {0};
+    for (auto y = 0; y < topo_map.size(); y++) {
+        for (auto x = 0; x < topo_map[y].size(); x++) {
+            if (topo_map[y][x] != 0) continue;
+            pair<int,int> p {x,y};
+            res += calc_trails_2(p, topo_map);
+        }
+    }
+
+    cout << "Solution 2: " << res << endl;
 }
 
 int main(int argc, char *argv[]) {
